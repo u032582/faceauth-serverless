@@ -1,46 +1,24 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@u032582 
-u032582
-/
-rekognition-demo-server
-Private
-Code
-Issues
-Pull requests
-Actions
-Projects
-Security
-Insights
-Settings
-rekognition-demo-server/integration-tests.http
-
-u032582 機能疎通OK
-Latest commit 8217815 14 days ago
- History
- 1 contributor
-35 lines (28 sloc)  429 KB
-  
-GET http://127.0.0.1:8080/rest/profile/accounts
-Accept: application/json
-
-### アカウント一覧
-GET http://127.0.0.1:8080/rest/accounts/
-Accept: application/json
-
 ### アカウント登録
-POST http://127.0.0.1:8080/rest/accounts
+POST https://hdgdzdaacb.execute-api.ap-northeast-1.amazonaws.com/test/java-custom-test
 Content-Type: application/json
 Accept: application/json
+spring.cloud.function.definition: registface
 
 {
-"accountId": "aaaaaa1112"
+    "accountId": "aaaaaa1112",
+    "faceimage": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
+
+### 顔取得
+POST https://hdgdzdaacb.execute-api.ap-northeast-1.amazonaws.com/test/java-custom-test
+Content-Type: application/json
+Accept: application/json
+spring.cloud.function.definition: getfaces
+
+{
+    "accountId": "aaaaaa1112",
+}
+
 
 ### アカウント削除
 DELETE http://127.0.0.1:8080/accounts?id=aaaaaa1112
@@ -61,16 +39,3 @@ spring.cloud.function.definition: message
 "imageFormat": "jpg"
 }
 ###
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Loading complete
