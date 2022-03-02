@@ -16,7 +16,6 @@ import com.example.faceauth.repository.FaceRepository;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 @Slf4j
 @Component
@@ -45,16 +44,13 @@ public class Blogic {
 		try {
 			log.info("getface called. face={}", face);
 			var ret = faceRepository.findByAccountId(face.getAccountId());
-			if (ret == null)
-				throw ResourceNotFoundException.builder().message("accountId=" + face.getAccountId() + " not found")
-						.build();
 			ret.setOK(true);
 			return ret;
 		} catch (Exception e) {
 			log.error("", e);
 			var ret = Face.builder().build();
 			ret.setOK(false);
-			ret.setErrorDetail(e.getMessage());
+			ret.setErrorDetail(e.toString());
 			return ret;
 		}
 	}
@@ -85,7 +81,7 @@ public class Blogic {
 			log.error("", e);
 			var ret = Face.builder().build();
 			ret.setOK(false);
-			ret.setErrorDetail(e.getMessage());
+			ret.setErrorDetail(e.toString());
 			return ret;
 		}
 	}
@@ -111,7 +107,7 @@ public class Blogic {
 		} catch (Exception e) {
 			log.error("", e);
 			ret.setOK(false);
-			ret.setErrorDetail(e.getMessage());
+			ret.setErrorDetail(e.toString());
 		}
 		return ret;
 	}

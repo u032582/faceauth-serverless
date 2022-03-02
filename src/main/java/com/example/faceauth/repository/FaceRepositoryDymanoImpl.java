@@ -67,7 +67,10 @@ public class FaceRepositoryDymanoImpl implements FaceRepository, InitializingBea
 	public Face findByAccountId(String accountId) {
 		DynamoDbTable<Face> mappedTable = dynamodbClient.table(tableName, TableSchema.fromBean(Face.class));
 		Key key = Key.builder().partitionValue(accountId).build();
-		return mappedTable.getItem(r -> r.key(key));
+		var ret = mappedTable.getItem(r -> r.key(key));
+		if (ret == null)
+			throw ResourceNotFoundException.builder().message("accountId[" + accountId + "] face not found").build();
+		return ret;
 	}
 
 	@Override

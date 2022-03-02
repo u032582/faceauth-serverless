@@ -68,15 +68,15 @@ public class FaceRekognitionImpl implements FaceRekognition {
 				log.info("未登録Reason:  " + reason);
 			}
 		}
-		IndexedFace ret = null;
 		if (faceRecords.size() > 0) {
 			var face = faceRecords.get(0).face();
 			var boundingBox = faceRecords.get(0).faceDetail().boundingBox();
-			ret = IndexedFace.builder().faceId(face.faceId()).boundingHeight(boundingBox.height())
+			IndexedFace ret = IndexedFace.builder().faceId(face.faceId()).boundingHeight(boundingBox.height())
 					.boundingWidth(boundingBox.width()).boundingLeft(boundingBox.left()).boundingTop(boundingBox.top())
 					.build();
+			return ret;
 		}
-		return ret;
+		throw ResourceNotFoundException.builder().message("登録する顔がありません").build();
 	}
 
 	@Override
