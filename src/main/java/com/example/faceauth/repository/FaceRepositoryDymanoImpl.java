@@ -1,8 +1,6 @@
 package com.example.faceauth.repository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -49,6 +47,7 @@ public class FaceRepositoryDymanoImpl implements FaceRepository, InitializingBea
 	public void afterPropertiesSet() throws Exception {
 		ddb = DynamoDbClient.builder().region(Region.of(region)).build();
 		dynamodbClient = DynamoDbEnhancedClient.builder().dynamoDbClient(ddb).build();
+		createTable();
 	}
 
 	@Override
@@ -65,14 +64,10 @@ public class FaceRepositoryDymanoImpl implements FaceRepository, InitializingBea
 	}
 
 	@Override
-	public List<Face> findByAccountId(String accountId) {
+	public Face findByAccountId(String accountId) {
 		DynamoDbTable<Face> mappedTable = dynamodbClient.table(tableName, TableSchema.fromBean(Face.class));
 		Key key = Key.builder().partitionValue(accountId).build();
-		Face result = mappedTable.getItem(r -> r.key(key));
-		List<Face> ret = new ArrayList<>();
-		if (result != null)
-			ret.add(result);
-		return ret;
+		return mappedTable.getItem(r -> r.key(key));
 	}
 
 	@Override
@@ -81,11 +76,11 @@ public class FaceRepositoryDymanoImpl implements FaceRepository, InitializingBea
 		mappedTable.putItem(face);
 	}
 
-	public boolean isTableExist() {
+	boolean isTableExist() {
 		try {
 			DescribeTableRequest request = DescribeTableRequest.builder().tableName(tableName).build();
 			TableDescription tableDescription = ddb.describeTable(request).table();
-			log.info("Dynamodb table does exist. name:{}", tableName);
+			log.info("Dynamodb table does exist. name:{}", tableDescription);
 			return true;
 		} catch (ResourceNotFoundException rnfe) {
 			log.info("Dynamodb table does not exist. name:{}", tableName);
@@ -93,7 +88,7 @@ public class FaceRepositoryDymanoImpl implements FaceRepository, InitializingBea
 		return false;
 	}
 
-	public String createTable() {
+	String createTable() {
 
 		if (isTableExist())
 			return "";

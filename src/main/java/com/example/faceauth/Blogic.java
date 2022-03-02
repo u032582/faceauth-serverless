@@ -1,12 +1,7 @@
 package com.example.faceauth;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.Date;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -14,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.example.faceauth.entity.Account;
 import com.example.faceauth.entity.Face;
 import com.example.faceauth.rekognition.FaceRekognition;
 import com.example.faceauth.rekognition.FaceRekognition.MatchInfo;
@@ -22,6 +16,7 @@ import com.example.faceauth.repository.FaceRepository;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 @Slf4j
 @Component
@@ -46,44 +41,53 @@ public class Blogic {
 		}
 	}
 
-//	@DeleteMapping("/accounts")
-	public void deleteAccount(Account account) {
-		faceApi.deleteCollection(account.getAccountId());
-		faceRepository.deleteByAccountId(account.getAccountId());
-	}
-
-//	@GetMapping("/getfaces")
-	public List<Face> getFace(Account account) {
+	public Face getFace(Face face) {
 		try {
-			log.info("getfaces called.");
-			return faceRepository.findByAccountId(account.getAccountId());
+			log.info("getface called. face={}", face);
+			var ret = faceRepository.findByAccountId(face.getAccountId());
+			if (ret == null)
+				throw ResourceNotFoundException.builder().message("accountId=" + face.getAccountId() + " not found")
+						.build();
+			ret.setOK(true);
+			return ret;
 		} catch (Exception e) {
 			log.error("", e);
+			var ret = Face.builder().build();
+			ret.setOK(false);
+			ret.setErrorDetail(e.getMessage());
+			return ret;
 		}
-		return List.of();
 	}
 
-//	@PostMapping("/registface")
 	public Face registFace(Face face) {
-		log.info("registface called.");
-		var accountId = face.getAccountId();
-		// コレクション削除
-		faceApi.deleteCollection(accountId);
-		faceRepository.deleteByAccountId(accountId);
-		// コレクション作成
-		faceApi.createCollection(face.getAccountId());
-		// 顔登録
-		byte[] bytes = Base64.getDecoder().decode(face.getFaceImage().getBytes());
-		var indexedFace = faceApi.indexFaces(face.getAccountId(), bytes);
-		face.setAccountId(accountId);
-		face.setFaceId(indexedFace.getFaceId());
-		face.setBoundingHeight(indexedFace.getBoundingHeight());
-		face.setBoundingWidth(indexedFace.getBoundingWidth());
-		face.setBoundingLeft(indexedFace.getBoundingLeft());
-		face.setBoundingTop(indexedFace.getBoundingTop());
-		face.setCreated(LocalDateTime.now());
-		faceRepository.save(face);
-		return face;
+		log.info("registface called. {}", face);
+		try {
+			var accountId = face.getAccountId();
+			// コレクション削除
+			faceApi.deleteCollection(accountId);
+			faceRepository.deleteByAccountId(accountId);
+			// コレクション作成
+			faceApi.createCollection(face.getAccountId());
+			// 顔登録
+			byte[] bytes = Base64.getDecoder().decode(face.getFaceImage().getBytes());
+			var indexedFace = faceApi.indexFaces(face.getAccountId(), bytes);
+			face.setAccountId(accountId);
+			face.setFaceId(indexedFace.getFaceId());
+			face.setBoundingHeight(indexedFace.getBoundingHeight());
+			face.setBoundingWidth(indexedFace.getBoundingWidth());
+			face.setBoundingLeft(indexedFace.getBoundingLeft());
+			face.setBoundingTop(indexedFace.getBoundingTop());
+			face.setCreated(LocalDateTime.now());
+			faceRepository.save(face);
+			face.setOK(true);
+			return face;
+		} catch (Exception e) {
+			log.error("", e);
+			var ret = Face.builder().build();
+			ret.setOK(false);
+			ret.setErrorDetail(e.getMessage());
+			return ret;
+		}
 	}
 
 	@Data
@@ -94,25 +98,21 @@ public class Blogic {
 		private Float threshold;
 	}
 
-//	@PostMapping("/login")
-	public boolean login(Face req) {
+	public BlogicResponse login(Face req) {
+		var ret = new BlogicResponse();
 		try {
 			byte[] bytes = Base64.getDecoder().decode(req.getFaceImage().getBytes());
+			// 99.0%以上の一致率の顔を取得
 			var faces = faceApi.searchFaceByImage(req.getAccountId(), bytes, 1, 99.0f);
 			for (MatchInfo matchInfo : faces) {
 				log.info("{}", matchInfo);
 			}
-			return faces.size() > 0;
+			ret.setOK(faces.size() > 0);
 		} catch (Exception e) {
 			log.error("", e);
+			ret.setOK(false);
+			ret.setErrorDetail(e.getMessage());
 		}
-		return false;
-	}
-
-	private static Date toDate(LocalDateTime localDateTime) {
-		ZoneId zone = ZoneId.systemDefault();
-		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, zone);
-		Instant instant = zonedDateTime.toInstant();
-		return Date.from(instant);
+		return ret;
 	}
 }

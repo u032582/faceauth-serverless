@@ -3,8 +3,8 @@ package com.example.faceauth;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 
 public class BlogicResponse {
-	private boolean OK;
-	private String message;
+	private boolean OK = true;
+	private String errorDetail;
 
 	@DynamoDbIgnore
 	public boolean isOK() {
@@ -16,12 +16,12 @@ public class BlogicResponse {
 	}
 
 	@DynamoDbIgnore
-	public String getMessage() {
-		return message;
+	public String getErrorDetail() {
+		return errorDetail;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
+	public void setErrorDetail(String message) {
+		this.errorDetail = message;
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.example.faceauth;
 
-import java.util.List;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 
-import com.example.faceauth.entity.Account;
 import com.example.faceauth.entity.Face;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +23,13 @@ public class FaceAuthApplication {
 	}
 
 	@Bean
-	public Function<Account, List<Face>> getfaces() {
+	public Function<Face, Face> getface() {
 		return value -> blogic.getFace(value);
+	}
+
+	@Bean
+	public Function<Face, Face> echo() {
+		return input -> input;
 	}
 
 	@Bean
@@ -35,7 +38,7 @@ public class FaceAuthApplication {
 	}
 
 	@Bean
-	public Function<Face, Boolean> login() {
+	public Function<Face, BlogicResponse> login() {
 		return value -> blogic.login(value);
 	}
 
