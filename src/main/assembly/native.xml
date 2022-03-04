@@ -22,7 +22,7 @@
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<fileMode>0775</fileMode>
 			<includes>
-				<include>function-sample</include>
+				<include>${project.artifactId}</include>
 			</includes>
 		</fileSet>
 	</fileSets>

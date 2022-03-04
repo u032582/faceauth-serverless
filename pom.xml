@@ -11,10 +11,10 @@
 	</parent>
 
 	<groupId>com.example</groupId>
-	<artifactId>function-sample</artifactId>
+	<artifactId>faceauth-serverless</artifactId>
 	<version>0.0.1</version>
-	<name>function-sample</name>
-	<description>Demo project for Spring Boot</description>
+	<name>ResourceNotFoundException</name>
+	<description>Face Auth App project by Spring Boot + Spring Cloud Function</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -51,17 +51,6 @@
 			<artifactId>aws-lambda-java-events</artifactId>
 			<version>3.11.0</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>com.amazonaws</groupId> -->
-		<!-- <artifactId>aws-lambda-java-serialization</artifactId> -->
-		<!-- <version>1.0.0</version> -->
-		<!-- </dependency> -->
-		<!-- because aws-lambda-java-serialization using this -->
-		<!-- <dependency> -->
-		<!-- <artifactId>joda-time</artifactId> -->
-		<!-- <groupId>joda-time</groupId> -->
-		<!-- <version>2.10.13</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>rekognition</artifactId>
@@ -118,27 +107,6 @@
 
 	<build>
 		<plugins>
-			<!-- <plugin> -->
-			<!-- <groupId>org.springframework.boot</groupId> -->
-			<!-- <artifactId>spring-boot-maven-plugin</artifactId> -->
-			<!-- <dependencies> -->
-			<!-- <dependency> -->
-			<!-- <groupId>org.springframework.boot.experimental</groupId> -->
-			<!-- <artifactId>spring-boot-thin-layout</artifactId> -->
-			<!-- <version>${wrapper.version}</version> -->
-			<!-- </dependency> -->
-			<!-- </dependencies> -->
-			<!-- <configuration> -->
-			<!-- <excludes> -->
-			<!-- <exclude> -->
-			<!-- <groupId>org.projectlombok</groupId> -->
-			<!-- <artifactId>lombok</artifactId> -->
-			<!-- </exclude> -->
-			<!-- </excludes> -->
-			<!-- <classifier>exec</classifier> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-
 			<plugin>
 				<groupId>org.springframework.experimental</groupId>
 				<artifactId>spring-aot-maven-plugin</artifactId>
@@ -262,6 +230,7 @@
 			</build>
 		</profile>
 	</profiles>
+	
 	<!-- This should be moved to settings.xml -->
 	<repositories>
 		<repository>

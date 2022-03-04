@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.faceauth.entity.Face;
 import com.example.faceauth.rekognition.FaceRekognition;
+import com.example.faceauth.rekognition.FaceRekognition.IndexedFace;
 import com.example.faceauth.rekognition.FaceRekognition.MatchInfo;
 import com.example.faceauth.repository.FaceRepository;
 
@@ -59,14 +60,26 @@ public class Blogic {
 		log.info("registface called. {}", face);
 		try {
 			var accountId = face.getAccountId();
-			// コレクション削除
+			// コレクションごと顔情報削除
 			faceApi.deleteCollection(accountId);
-			faceRepository.deleteByAccountId(accountId);
 			// コレクション作成
 			faceApi.createCollection(face.getAccountId());
 			// 顔登録
 			byte[] bytes = Base64.getDecoder().decode(face.getFaceImage().getBytes());
-			var indexedFace = faceApi.indexFaces(face.getAccountId(), bytes);
+
+			IndexedFace indexedFace = null;
+			try {
+				indexedFace = faceApi.indexFaces(face.getAccountId(), bytes);
+			} catch (IllegalArgumentException ex) {
+				// 顔が登録できなかった場合DynamoDBのデータで復元する
+				try {
+					Face saved = faceRepository.findByAccountId(accountId);
+					indexedFace = faceApi.indexFaces(face.getAccountId(), bytes);
+				} catch (Exception ignore) {
+					// 復元時のエラーは飲み込む
+				}
+				throw ex;
+			}
 			face.setAccountId(accountId);
 			face.setFaceId(indexedFace.getFaceId());
 			face.setBoundingHeight(indexedFace.getBoundingHeight());

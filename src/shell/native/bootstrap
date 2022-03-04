@@ -3,4 +3,4 @@ set -euo pipefail
 
 cd ${LAMBDA_TASK_ROOT:-.}
 
-./function-sample
+./faceauth-serverless
